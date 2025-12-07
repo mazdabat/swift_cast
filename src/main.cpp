@@ -1,7 +1,7 @@
-#include <iostream>
+#include <SDL3/SDL.h>
 
 int main(int, char**) {
-    std::cout << "Hello, from swift-cast!\n";
-    std::cout << "This is the second line of code.\n";
-    std::cout << "This is the third line of code.\n";
+    SDL_Log("%s", "Normal log");
+    SDL_LogError(1, "Error log");
+    SDL_LogCritical(4, "Critical log");
 }
