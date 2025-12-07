@@ -8,7 +8,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 # Generate compile-commands.json for Clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_executable(swift-cast src/main.cpp)
+add_subdirectory(src)
 
 include(CTest)
 enable_testing()
