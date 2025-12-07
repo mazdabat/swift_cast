@@ -14,9 +14,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Add 3rd party dependencies
 add_subdirectory(vendor/SDL)
 
+file(COPY ${PROJECT_SOURCE_DIR}/res DESTINATION ${PROJECT_BINARY_DIR}/bin)
+
+
 # Add project source code
 add_subdirectory(src)
-
 
 include(CTest)
 enable_testing()
