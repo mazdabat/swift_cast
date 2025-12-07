@@ -1,5 +1,3 @@
-set(SDL3_DIR, "")
-
 # find_package(SDL3 REQUIRED)
 
 include_directories(${SDL3_INCLUDE_DIRS})
