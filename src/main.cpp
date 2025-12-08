@@ -6,9 +6,6 @@
 
 #include <filesystem>
 
-#define WIDTH 1280
-#define HEIGHT 720
-
 int main(int, char**) {
     SDL_Window* window;
     SDL_Renderer* renderer;
@@ -17,13 +14,21 @@ int main(int, char**) {
     SDL_Event event;
 
     if (!SDL_Init(SDL_INIT_VIDEO)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't initialize SDL: %s", SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "Couldn't initialize SDL: %s",
+            SDL_GetError());
         return 1;
     }  // Initialize SDL3
 
-    if (!SDL_CreateWindowAndRenderer("Hello swift-cast", WIDTH, HEIGHT, SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN,
-                                     &window, &renderer)) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create windows and renderer: %s", SDL_GetError());
+    if (!SDL_CreateWindowAndRenderer("Hello swift-cast",
+            0,
+            0,
+            SDL_WINDOW_RESIZABLE | SDL_WINDOW_FULLSCREEN,
+            &window,
+            &renderer)) {
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "Couldn't create windows and renderer: %s",
+            SDL_GetError());
     }
 
     std::filesystem::path current_path = std::filesystem::current_path();
@@ -31,12 +36,16 @@ int main(int, char**) {
 
     surface = SDL_LoadPNG("res/pic_sc.png");
     if (!surface) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create surface from image: %s", SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "Couldn't create surface from image: %s",
+            SDL_GetError());
     }
 
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture) {
-        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "Couldn't create texture from surface: %s", SDL_GetError());
+        SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
+            "Couldn't create texture from surface: %s",
+            SDL_GetError());
     }
 
     SDL_DestroySurface(surface);
