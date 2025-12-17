@@ -8,6 +8,7 @@
 #include <vector>
 
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_scancode.h"
 #include "SDL3/SDL_timer.h"
 
 int main(int, char**) {
@@ -41,7 +42,7 @@ int main(int, char**) {
     resource_path = std::filesystem::absolute(resource_path);
     SDL_Log("Current resource path: %s", resource_path.u8string().c_str());
 
-    std::vector<SDL_Texture*> vector_textures;
+    std::vector<SDL_Texture*> vec_textures;
 
     for (const auto& entry : std::filesystem::directory_iterator(resource_path)) {
         // extension name is not reliable - may need rely on the meatdata.
@@ -54,35 +55,74 @@ int main(int, char**) {
             SDL_DestroySurface(surface);
 
             // texture is the slideshow
-            if (texture) vector_textures.push_back(texture);
+            if (texture) vec_textures.push_back(texture);
         }
     }
 
-    size_t current = 0;
     Uint64 lastSwitch = SDL_GetTicks();
+
+    // Slide show
+    size_t current = 0;
     const Uint64 IMAGE_DELAY = 2000;
+
+    // Slide transitioning
+    const Uint64 TRANSITION_TIME = 1000;
+    bool transitioning = false;
+    size_t next = 0;
+    Uint64 transition_start = 0;
 
     while (1) {
         SDL_PollEvent(&event);
         if (event.type == SDL_EVENT_QUIT)  // Windows's close button
             break;
 
-        else if (event.type == SDL_EVENT_KEY_DOWN)  // Any key down
+        // Scancodes physical key position (layout-independent)
+        else if (event.type == SDL_EVENT_KEY_DOWN &&
+                 event.key.scancode == SDL_SCANCODE_ESCAPE)  // Press ECS key down
             break;
 
         Uint64 now = SDL_GetTicks();
-        if (now - lastSwitch >= IMAGE_DELAY) {
-            // Play the slides in a loop
-            current = (current + 1) % vector_textures.size();
-            lastSwitch = now;
+
+        if (!transitioning && (now - lastSwitch >= IMAGE_DELAY)) {
+            // Change to the next slide, and play all slides in a loop
+            // current = (current + 1) % vec_textures.size();
+            // lastSwitch = now;
+
+            // Trigger the transition
+            transitioning = true;
+            transition_start = now;
+            next = (current + 1) % vec_textures.size();
         }
 
         SDL_RenderClear(renderer);
-        SDL_RenderTexture(renderer, vector_textures[current], NULL, NULL);
+
+        if (transitioning) {
+            float t = (now - transition_start) / (float)TRANSITION_TIME;
+            if (t >= 1.0f) {
+                current = next;
+                transitioning = false;
+                lastSwitch = now;
+                t = 1.0f;
+            }
+
+            SDL_SetTextureAlphaMod(vec_textures[current],
+                (Uint8)((1.0f * t) * 255.0f));
+            SDL_SetTextureAlphaMod(vec_textures[next], (Uint8)(t * 255.0f));
+
+            SDL_RenderTexture(renderer, vec_textures[current], nullptr, nullptr);
+            SDL_RenderTexture(renderer, vec_textures[next], nullptr, nullptr);
+
+        } else {
+            SDL_RenderTexture(renderer, vec_textures[current], nullptr, nullptr);
+        }
+
         SDL_RenderPresent(renderer);
     }
 
-    SDL_DestroyTexture(texture);
+    for (SDL_Texture* tex : vec_textures) {
+        SDL_DestroyTexture(tex);
+    }
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
