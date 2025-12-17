@@ -5,10 +5,12 @@
 #include <stdlib.h>
 
 #include <filesystem>
+#include <utile.hpp>
 #include <vector>
 
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
+#include "SDL3/SDL_surface.h"
 #include "SDL3/SDL_timer.h"
 
 int main(int, char**) {
@@ -71,6 +73,9 @@ int main(int, char**) {
     size_t next = 0;
     Uint64 transition_start = 0;
 
+    SDL_FRect dst;
+    int win_width, win_height;
+
     while (1) {
         SDL_PollEvent(&event);
         if (event.type == SDL_EVENT_QUIT)  // Windows's close button
@@ -109,11 +114,20 @@ int main(int, char**) {
                 (Uint8)((1.0f * t) * 255.0f));
             SDL_SetTextureAlphaMod(vec_textures[next], (Uint8)(t * 255.0f));
 
-            SDL_RenderTexture(renderer, vec_textures[current], nullptr, nullptr);
-            SDL_RenderTexture(renderer, vec_textures[next], nullptr, nullptr);
+            // Got 1 X 1 in the first iteration
+            // How to get the fullscreen window size after the app started?
+            SDL_GetWindowSize(window, &win_width, &win_height);
+
+            // Don't stretch the texture - but need to display in the center of the
+            // screen The designed texture should have same aspect as the screen
+            dst = GetFitRect(vec_textures[current], win_width, win_height);
+            dst = GetFitRect(vec_textures[next], win_width, win_height);
+
+            SDL_RenderTexture(renderer, vec_textures[current], nullptr, &dst);
+            SDL_RenderTexture(renderer, vec_textures[next], nullptr, &dst);
 
         } else {
-            SDL_RenderTexture(renderer, vec_textures[current], nullptr, nullptr);
+            SDL_RenderTexture(renderer, vec_textures[current], nullptr, &dst);
         }
 
         SDL_RenderPresent(renderer);
