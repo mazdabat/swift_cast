@@ -73,6 +73,7 @@ int main(int, char**) {
     size_t next = 0;
     Uint64 transition_start = 0;
 
+    // fit rectangle
     SDL_FRect dst;
     int win_width, win_height;
 
@@ -101,6 +102,12 @@ int main(int, char**) {
 
         SDL_RenderClear(renderer);
 
+        // right to left tansition effect
+        SDL_FRect cur_rect =
+            GetFitRect(vec_textures[current], win_width, win_height);
+        SDL_FRect next_rect =
+            GetFitRect(vec_textures[next], win_width, win_height);
+
         if (transitioning) {
             float t = (now - transition_start) / (float)TRANSITION_TIME;
             if (t >= 1.0f) {
@@ -109,6 +116,9 @@ int main(int, char**) {
                 lastSwitch = now;
                 t = 1.0f;
             }
+
+            cur_rect.x = -t * win_width;
+            next_rect.x = (1.0f - t) * win_width;
 
             SDL_SetTextureAlphaMod(vec_textures[current],
                 (Uint8)((1.0f * t) * 255.0f));
@@ -123,8 +133,8 @@ int main(int, char**) {
             dst = GetFitRect(vec_textures[current], win_width, win_height);
             dst = GetFitRect(vec_textures[next], win_width, win_height);
 
-            SDL_RenderTexture(renderer, vec_textures[current], nullptr, &dst);
-            SDL_RenderTexture(renderer, vec_textures[next], nullptr, &dst);
+            SDL_RenderTexture(renderer, vec_textures[current], nullptr, &cur_rect);
+            SDL_RenderTexture(renderer, vec_textures[next], nullptr, &next_rect);
 
         } else {
             SDL_RenderTexture(renderer, vec_textures[current], nullptr, &dst);
