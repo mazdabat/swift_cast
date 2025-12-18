@@ -11,7 +11,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 # Generate compile-commands.json for Clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Add 3rd party dependencies
+# Add 3rd party dependencies, except header-only libs
+# These must before adding src
+# vendor CMake script generates <namespace>::<target> that will be used in src CMake
 add_subdirectory(vendor/SDL)
 
 file(COPY ${PROJECT_SOURCE_DIR}/res DESTINATION ${PROJECT_BINARY_DIR}/bin)

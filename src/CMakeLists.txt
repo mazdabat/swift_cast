@@ -11,20 +11,13 @@ add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
+    ${PROJECT_SOURCE_DIR}/vendor/nanosvg/src # header-only lib
 )
 
-#[[
-# Add source code
-target_sources(${PROJECT_NAME} PRIVATE 
-    # Best Practice (manual listing here)
-)
-]]#
-
-# Link SDL3 to the executable
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 
 # Debug: show all sources
-message(STATUS, "Current Source Dir = ${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "nanosvg lib dir = ${PROJECT_SOURCE_DIR}/vendor/nanosvg/src")
 
 message(STATUS "src files:")
 foreach(f IN LISTS SRC_FILES)
