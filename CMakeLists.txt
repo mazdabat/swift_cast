@@ -16,7 +16,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # vendor CMake script generates <namespace>::<target> that will be used in src CMake
 add_subdirectory(vendor/SDL)
 
-file(COPY ${PROJECT_SOURCE_DIR}/res DESTINATION ${PROJECT_BINARY_DIR}/bin)
+# res direcotry is delelted
+# file(COPY ${PROJECT_SOURCE_DIR}/res DESTINATION ${PROJECT_BINARY_DIR}/bin)
 
 
 # Add project source code
