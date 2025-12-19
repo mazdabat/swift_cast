@@ -1,6 +1,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_surface.h>
 #include <SDL3/SDL_video.h>
 #include <stdlib.h>
 
@@ -61,11 +62,15 @@ int main(int, char**) {
         }
     }
 
+    Uint64 splash_switch = SDL_GetTicks();
+    const Uint64 SPLASH_DELAY = 3000;
+    bool display_splash = true;
+
     Uint64 lastSwitch = SDL_GetTicks();
 
     // Slide show
     size_t current = 0;
-    const Uint64 IMAGE_DELAY = 2000;
+    const Uint64 IMAGE_DELAY = 5000;
 
     // Slide transitioning
     const Uint64 TRANSITION_TIME = 1000;
@@ -78,6 +83,8 @@ int main(int, char**) {
     int win_width, win_height;
 
     while (1) {
+        Uint64 now = SDL_GetTicks();
+
         SDL_PollEvent(&event);
         if (event.type == SDL_EVENT_QUIT)  // Windows's close button
             break;
@@ -86,8 +93,25 @@ int main(int, char**) {
         else if (event.type == SDL_EVENT_KEY_DOWN &&
                  event.key.scancode == SDL_SCANCODE_ESCAPE)  // Press ECS key down
             break;
+        else if (event.type == SDL_EVENT_WINDOW_RESIZED) {
+            win_width = win_width = event.window.data1;
+            win_height = event.window.data2;
+        }
 
-        Uint64 now = SDL_GetTicks();
+        if (display_splash && win_width > 1 && win_height > 1) {
+            display_splash = false;
+
+            while (now - splash_switch <= 3000) {
+                now = SDL_GetTicks();
+
+                SDL_Texture* tex_splash =
+                    load_svg_texture(renderer, win_width, win_height);
+
+                SDL_RenderTexture(renderer, tex_splash, nullptr, nullptr);
+
+                SDL_RenderPresent(renderer);
+            }
+        }
 
         if (!transitioning && (now - lastSwitch >= IMAGE_DELAY)) {
             // Change to the next slide, and play all slides in a loop
@@ -124,12 +148,9 @@ int main(int, char**) {
                 (Uint8)((1.0f * t) * 255.0f));
             SDL_SetTextureAlphaMod(vec_textures[next], (Uint8)(t * 255.0f));
 
-            // Got 1 X 1 in the first iteration
-            // How to get the fullscreen window size after the app started?
-            SDL_GetWindowSize(window, &win_width, &win_height);
-
-            // Don't stretch the texture - but need to display in the center of the
-            // screen The designed texture should have same aspect as the screen
+            // Don't stretch the texture - but need to display in the center of
+            // the screen The designed texture should have same aspect as the
+            // screen
             dst = GetFitRect(vec_textures[current], win_width, win_height);
             dst = GetFitRect(vec_textures[next], win_width, win_height);
 
