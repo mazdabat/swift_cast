@@ -78,8 +78,6 @@ int main(int, char**) {
     size_t next = 0;
     Uint64 transition_start = 0;
 
-    // fit rectangle
-    SDL_FRect dst;
     int win_width, win_height;
 
     while (1) {
@@ -97,6 +95,10 @@ int main(int, char**) {
             win_width = win_width = event.window.data1;
             win_height = event.window.data2;
         }
+
+        SDL_RenderClear(renderer);
+
+        if (win_width < 1 && win_height < 1) continue;
 
         if (display_splash && win_width > 1 && win_height > 1) {
             display_splash = false;
@@ -124,8 +126,6 @@ int main(int, char**) {
             next = (current + 1) % vec_textures.size();
         }
 
-        SDL_RenderClear(renderer);
-
         // right to left tansition effect
         SDL_FRect cur_rect =
             GetFitRect(vec_textures[current], win_width, win_height);
@@ -148,17 +148,12 @@ int main(int, char**) {
                 (Uint8)((1.0f * t) * 255.0f));
             SDL_SetTextureAlphaMod(vec_textures[next], (Uint8)(t * 255.0f));
 
-            // Don't stretch the texture - but need to display in the center of
-            // the screen The designed texture should have same aspect as the
-            // screen
-            dst = GetFitRect(vec_textures[current], win_width, win_height);
-            dst = GetFitRect(vec_textures[next], win_width, win_height);
-
             SDL_RenderTexture(renderer, vec_textures[current], nullptr, &cur_rect);
             SDL_RenderTexture(renderer, vec_textures[next], nullptr, &next_rect);
 
         } else {
-            SDL_RenderTexture(renderer, vec_textures[current], nullptr, &dst);
+            // Stretched texture
+            SDL_RenderTexture(renderer, vec_textures[current], nullptr, nullptr);
         }
 
         SDL_RenderPresent(renderer);
