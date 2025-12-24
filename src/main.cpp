@@ -98,7 +98,7 @@ int main(int, char**) {
 
         SDL_RenderClear(renderer);
 
-        if (win_width < 1 && win_height < 1) continue;
+        if (win_width <= 1 || win_height <= 1) continue;
 
         if (display_splash && win_width > 1 && win_height > 1) {
             display_splash = false;
